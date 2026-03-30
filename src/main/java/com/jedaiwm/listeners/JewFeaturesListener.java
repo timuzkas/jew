@@ -12,6 +12,8 @@ import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Container;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Item;
@@ -21,6 +23,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.util.Vector;
@@ -38,8 +41,12 @@ public class JewFeaturesListener implements Listener {
     private final Random random = new Random();
     private final Map<UUID, Long> jewSenseCooldowns = new HashMap<>();
     private final Map<UUID, Long> damageCooldowns = new HashMap<>();
+    private final Map<UUID, Long> noseCooldowns = new HashMap<>();
+    private final Map<UUID, Long> ambientCooldowns = new HashMap<>();
 
     private static final long DAMAGE_PHRASE_COOLDOWN = 10_000;
+    private static final long NOSE_COOLDOWN = 5 * 60 * 1000;
+    private static final long AMBIENT_COOLDOWN = 2 * 60 * 1000;
 
     private static final List<String> GOLD_ITEMS = List.of(
         "GOLD_INGOT", "GOLD_NUGGET", "GOLD_BLOCK", "GOLD_ORE",
@@ -59,6 +66,7 @@ public class JewFeaturesListener implements Listener {
             JewPlayer jew = jewManager.getJew(player);
             runGoldMagnet(player, jew);
             runJewSense(player);
+            runNoseFeature(player, jew);
             checkSynagogueProximity(player, jew);
         }
     }
@@ -87,6 +95,53 @@ public class JewFeaturesListener implements Listener {
         return false;
     }
 
+    private void runNoseFeature(Player player, JewPlayer jew) {
+        if (jew.getLevel() < 4) return;
+        if (!plugin.getConfig().getBoolean("nose.enabled", true)) return;
+
+        UUID uuid = player.getUniqueId();
+        long now = System.currentTimeMillis();
+        if (now - noseCooldowns.getOrDefault(uuid, 0L) < NOSE_COOLDOWN) return;
+
+        int range = plugin.getConfig().getInt("nose.range", 30);
+        Location playerLoc = player.getLocation();
+
+        for (int x = -range; x <= range; x += 4) {
+            for (int y = -range / 2; y <= range / 2; y += 4) {
+                for (int z = -range; z <= range; z += 4) {
+                    Location checkLoc = playerLoc.clone().add(x, y, z);
+                    if (checkLoc.getWorld() == null) continue;
+
+                    Block block = checkLoc.getBlock();
+                    if (block.getState() instanceof Container) {
+                        Location directionLoc = playerLoc.clone().add(x, 0, z);
+                        double angle = Math.atan2(directionLoc.getZ() - playerLoc.getZ(), directionLoc.getX() - playerLoc.getX());
+                        angle = Math.toDegrees(angle) + 90;
+                        String arrow = getDirectionArrow(angle);
+
+                        ActionBarQueue.typewriter(player,
+                            "\uD83D\uDC41 " + arrow + " Something valuable nearby...",
+                            ActionBarQueue.PRIORITY_INFO, 3, 40);
+                        noseCooldowns.put(uuid, now);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    private String getDirectionArrow(double angle) {
+        angle = (angle + 360) % 360;
+        if (angle >= 337.5 || angle < 22.5) return "\u2B06";
+        if (angle >= 22.5 && angle < 67.5) return "\u2197";
+        if (angle >= 67.5 && angle < 112.5) return "\u27A1";
+        if (angle >= 112.5 && angle < 157.5) return "\u2198";
+        if (angle >= 157.5 && angle < 202.5) return "\u2B07";
+        if (angle >= 202.5 && angle < 247.5) return "\u2199";
+        if (angle >= 247.5 && angle < 292.5) return "\u2190";
+        return "\u2196";
+    }
+
     @EventHandler
     public void onItemPickup(EntityPickupItemEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
@@ -94,6 +149,7 @@ public class JewFeaturesListener implements Listener {
         if (!isGoldItem(event.getItem().getItemStack().getType())) return;
         if (random.nextDouble() >= 0.35) return;
         ActionBarQueue.typewriter(player, "\uD83D\uDCB0 Yours now.", ActionBarQueue.PRIORITY_INFO, 3, 30);
+        triggerAmbientPhrase(player, "gold_pickup");
     }
 
     @EventHandler
@@ -114,6 +170,23 @@ public class JewFeaturesListener implements Listener {
         Player player = event.getEntity();
         if (!jewManager.isJew(player)) return;
         EffectsUtil.playSoundDeath(player);
+        triggerAmbientPhrase(player, "death");
+    }
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (event.getAction() != org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) return;
+        if (event.getClickedBlock() == null) return;
+        if (!(event.getPlayer() instanceof Player player)) return;
+        if (!jewManager.isJew(player)) return;
+
+        Material type = event.getClickedBlock().getType();
+        if (type == Material.WATER || type == Material.BUBBLE_COLUMN) {
+            if (random.nextDouble() < 0.3) {
+                ActionBarQueue.typewriter(player, "\uD83D\uDECC This better count...",
+                    ActionBarQueue.PRIORITY_INFO, 3, 30);
+            }
+        }
     }
 
     private void runJewSense(Player player) {
@@ -122,7 +195,8 @@ public class JewFeaturesListener implements Listener {
         long now = System.currentTimeMillis();
         if (now - jewSenseCooldowns.getOrDefault(uuid, 0L) < 3 * 60 * 1000L) return;
         for (Entity entity : player.getNearbyEntities(8, 8, 8)) {
-            if (!(entity instanceof Player nearby) || nearby.equals(player)) continue;
+            if (!(entity instanceof Player nearby)) continue;
+            if (nearby.equals(player)) continue;
             if (!jewManager.isJew(nearby)) {
                 ActionBarQueue.typewriter(player, "\uD83D\uDC41 A gentile approaches.",
                     ActionBarQueue.PRIORITY_INFO, 3, 30);
@@ -159,6 +233,23 @@ public class JewFeaturesListener implements Listener {
                 ActionBarQueue.PRIORITY_INFO, 3, 40);
         }
         jew.setNearSynagogue(near);
+    }
+
+    private void triggerAmbientPhrase(Player player, String trigger) {
+        UUID uuid = player.getUniqueId();
+        long now = System.currentTimeMillis();
+        if (now - ambientCooldowns.getOrDefault(uuid, 0L) < AMBIENT_COOLDOWN) return;
+
+        List<String> phrases = plugin.getConfig().getStringList("phrases." + trigger);
+        if (phrases == null || phrases.isEmpty()) return;
+
+        String phrase = phrases.get(random.nextInt(phrases.size()));
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            if (jewManager.isJew(online) || online.hasPermission("jedaiwm.admin")) {
+                online.sendMessage(ChatColor.GOLD + "* " + phrase + " *");
+            }
+        }
+        ambientCooldowns.put(uuid, now);
     }
 
     public void checkAndTriggerBarMitzvah(Player player, JewPlayer jew) {

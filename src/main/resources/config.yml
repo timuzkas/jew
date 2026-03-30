@@ -75,6 +75,14 @@ haggle:
   chance-base: 0.10
   chance-level5: 0.25
 
+nose:
+  enabled: true
+  range: 30
+
+debate:
+  enabled: true
+  piety-reward: 5
+
 phrases:
   trade:
     - "A deal is a deal. Mostly."
