@@ -1,7 +1,9 @@
 package com.jedaiwm;
 
 import com.jedaiwm.commands.JewCommand;
+import com.jedaiwm.commands.JewCommandCompleter;
 import com.jedaiwm.commands.PrayCommand;
+import com.jedaiwm.commands.TabCompleters;
 import com.jedaiwm.commands.TorahCommand;
 import com.jedaiwm.commands.TeshuvahCommand;
 import com.jedaiwm.commands.GefilteFishCommand;
@@ -34,10 +36,15 @@ public final class JedaiWM extends JavaPlugin {
         lowPietyManager = new LowPietyManager(this);
 
         getCommand("jew").setExecutor(new JewCommand(this));
+        getCommand("jew").setTabCompleter(new JewCommandCompleter(this));
         getCommand("pray").setExecutor(new PrayCommand(this));
+        getCommand("pray").setTabCompleter(new TabCompleters.PrayCompleter());
         getCommand("torah").setExecutor(new TorahCommand(this));
+        getCommand("torah").setTabCompleter(new TabCompleters.TorahCompleter());
         getCommand("teshuvah").setExecutor(new TeshuvahCommand(this));
+        getCommand("teshuvah").setTabCompleter(new TabCompleters.TeshuvahCompleter());
         getCommand("gefiltefish").setExecutor(new GefilteFishCommand(this));
+        getCommand("gefiltefish").setTabCompleter(new TabCompleters.GefilteFishCompleter());
 
         getServer().getPluginManager().registerEvents(new FoodListener(this), this);
         getServer().getPluginManager().registerEvents(new ShabbatListener(this), this);

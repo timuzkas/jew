@@ -72,6 +72,7 @@ public class JewManager {
         if (convertedBy != null && !convertedBy.isEmpty()) {
             jewPlayer.setConvertedBy(convertedBy);
         }
+        jewPlayer.setPiety(50);
         jews.put(player.getUniqueId(), jewPlayer);
         jewPlayer.save(dataFolder);
         return jewPlayer;
@@ -82,6 +83,7 @@ public class JewManager {
         if (convertedBy != null && !convertedBy.isEmpty()) {
             jewPlayer.setConvertedBy(convertedBy);
         }
+        jewPlayer.setPiety(50);
         jews.put(player.getUniqueId(), jewPlayer);
         jewPlayer.save(dataFolder);
         return jewPlayer;
