@@ -182,6 +182,20 @@ public class JewFeaturesListener implements Listener {
         if (!jewManager.isJew(player)) return;
 
         JewPlayer jew = jewManager.getJew(player);
+
+        // Shield protection - if active, cancel death
+        if (jew.isShieldActive()) {
+            jew.setShieldActive(false);
+            jew.save(new java.io.File(plugin.getDataFolder(), "jews"));
+            event.setDeathMessage(null);
+            event.setDroppedExp(0);
+            event.getDrops().clear();
+            player.setHealth(player.getMaxHealth());
+            player.sendTitle("\u05E9\u05DE\u05E2", "Protected!", 10, 40, 20);
+            ActionBarQueue.send(player, "\u2721 The Shema shielded you from death.", ActionBarQueue.PRIORITY_INFO, 60);
+            return;
+        }
+
         if (jew.isBlessedInventory()) {
             jew.clearBlessedInventory();
             jew.save(new java.io.File(plugin.getDataFolder(), "jews"));

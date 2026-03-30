@@ -158,6 +158,10 @@ public class JewAbilityCommand implements CommandExecutor, TabCompleter {
         jew.save(new File(plugin.getDataFolder(), "jews"));
 
         ActionBarQueue.countdown(player, "Reciting Shema... ", ActionBarQueue.PRIORITY_RITUAL, 5);
+        player.sendTitle("\u05E9\u05DE\u05E2", "You are protected.", 10, 40, 20);
+
+        // Visual effect while shield active
+        startShieldEffect(player);
 
         // Schedule shield deactivation after 2 min
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
@@ -165,8 +169,19 @@ public class JewAbilityCommand implements CommandExecutor, TabCompleter {
             if (j != null && j.isShieldActive()) {
                 j.setShieldActive(false);
                 j.save(new File(plugin.getDataFolder(), "jews"));
+                ActionBarQueue.send(player, "\u2721 The Shema shield has faded.", ActionBarQueue.PRIORITY_INFO, 40);
             }
         }, 2400L);
+    }
+
+    private void startShieldEffect(Player player) {
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            JewPlayer jew = jewManager.getJew(player);
+            if (jew != null && jew.isShieldActive() && player.isOnline()) {
+                player.getWorld().spawnParticle(org.bukkit.Particle.GLOW, player.getLocation().add(0, 1, 0), 3, 0.5, 0.5, 0.5, 0);
+                startShieldEffect(player);
+            }
+        }, 20L);
     }
 
     private void doBlessedInventory(Player player) {

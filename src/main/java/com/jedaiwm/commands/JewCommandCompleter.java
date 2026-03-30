@@ -36,6 +36,7 @@ public class JewCommandCompleter implements TabCompleter {
             subCommands.add("decline");
 
             if (sender.hasPermission("jedaiwm.admin")) {
+                subCommands.add("manage");
                 for (String sub : subCommands) {
                     if (sub.toLowerCase().startsWith(args[0].toLowerCase())) {
                         completions.add(sub);
@@ -55,11 +56,39 @@ public class JewCommandCompleter implements TabCompleter {
 
             if (subCommand.equals("make") || subCommand.equals("remove") || 
                 subCommand.equals("status") || subCommand.equals("convert") ||
-                subCommand.equals("accept") || subCommand.equals("decline")) {
+                subCommand.equals("accept") || subCommand.equals("decline") ||
+                subCommand.equals("manage")) {
 
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     if (player.getName().toLowerCase().startsWith(args[1].toLowerCase())) {
                         completions.add(player.getName());
+                    }
+                }
+            }
+        } else if (args.length == 3) {
+            if (args[0].equalsIgnoreCase("manage")) {
+                List<String> manageActions = List.of("piety", "level", "unjew", "strike", "info");
+                for (String action : manageActions) {
+                    if (action.toLowerCase().startsWith(args[2].toLowerCase())) {
+                        completions.add(action);
+                    }
+                }
+            }
+        } else if (args.length == 4) {
+            if (args[0].equalsIgnoreCase("manage")) {
+                if (args[2].equalsIgnoreCase("piety")) {
+                    List<String> pietyActions = List.of("get", "set", "add");
+                    for (String action : pietyActions) {
+                        if (action.toLowerCase().startsWith(args[3].toLowerCase())) {
+                            completions.add(action);
+                        }
+                    }
+                } else if (args[2].equalsIgnoreCase("level")) {
+                    List<String> levelActions = List.of("get", "set");
+                    for (String action : levelActions) {
+                        if (action.toLowerCase().startsWith(args[3].toLowerCase())) {
+                            completions.add(action);
+                        }
                     }
                 }
             }
