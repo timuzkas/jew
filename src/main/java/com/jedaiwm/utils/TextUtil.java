@@ -29,11 +29,10 @@ public class TextUtil {
     }
 
     public static void sendSynagogueMenu(Player player) {
-        player.sendMessage(Component.text("=== Synagogue ===", NamedTextColor.GOLD));
-        Component pray = createClickableText("[Pray]", "Pray at the synagogue", "/pray");
-        Component torah = createClickableText("[Study Torah]", "Study the Torah", "/torah");
-        Component status = createClickableText("[Check Piety]", "View your piety status", "/jew status");
-        player.sendMessage(pray.append(Component.text(" | ")).append(torah).append(Component.text(" | ")).append(status));
+        player.sendMessage(Component.text("[Synagogue]", NamedTextColor.GOLD));
+        Component pray = createClickableText("Pray", "Pray at the synagogue", "/pray");
+        Component torah = createClickableText("Torah", "Study the Torah", "/torah");
+        player.sendMessage(pray.append(Component.text(" | ")).append(torah));
     }
 
     public static void sendConversionInvite(Player target, Player inviter) {

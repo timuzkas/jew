@@ -2,7 +2,7 @@ package com.jedaiwm.managers;
 
 import com.jedaiwm.JedaiWM;
 import com.jedaiwm.models.JewPlayer;
-import com.jedaiwm.utils.ActionBarUtil;
+import com.jedaiwm.utils.ActionBarQueue;
 import com.jedaiwm.utils.EffectsUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -24,55 +24,41 @@ public class LowPietyManager {
     private final JewManager jewManager;
     private final Random random = new Random();
 
+    private final Map<UUID, Long> lastEventTime = new HashMap<>();
     private final Map<UUID, Long> thunderCooldowns = new HashMap<>();
     private final Map<UUID, Long> whisperCooldowns = new HashMap<>();
     private final Map<UUID, Long> godMessageCooldowns = new HashMap<>();
 
-    private static final long THUNDER_COOLDOWN_MS = 45_000;
-    private static final long WHISPER_COOLDOWN_MS = 30_000;
-    private static final long GOD_MESSAGE_COOLDOWN_MS = 120_000;
+    private static final long GLOBAL_MIN_GAP_MS = 60_000;
+    private static final long THUNDER_REPEAT_MS = 180_000;
+    private static final long WHISPER_REPEAT_MS = 120_000;
+    private static final long GOD_MSG_REPEAT_MS = 300_000;
 
-    private static final int THRESHOLD_BAD = 20;
-    private static final int THRESHOLD_DIRE = 8;
+    private static final int THRESHOLD_LOW = 15;
+    private static final int THRESHOLD_DIRE = 5;
 
-    private static final List<String> WHISPERS_BAD = List.of(
-        "...you have forgotten the way...",
-        "...your ancestors weep...",
-        "...the covenant slips from your hands...",
-        "...is this who you are?...",
-        "...straying from the path brings only darkness...",
-        "...even the Rebbe would turn away...",
-        "...remember what you are...",
-        "...the tradition dies with the faithless..."
+    private static final List<String> WHISPERS_LOW = List.of(
+        "...remember...",
+        "...return...",
+        "...the path..."
     );
 
     private static final List<String> WHISPERS_DIRE = List.of(
-        "...you are no longer His...",
-        "...the gates close for the wicked...",
-        "...your name is being forgotten...",
-        "...darkness follows the faithless...",
-        "...there is no covenant for sinners...",
-        "...turn back before it is too late...",
-        "...can you hear them? your ancestors cry...",
-        "...you are a disgrace to the tribe..."
+        "...too late...",
+        "...forgotten...",
+        "...darkness..."
     );
 
-    private static final List<String> GOD_MESSAGES_BAD = List.of(
+    private static final List<String> GOD_MESSAGES_LOW = List.of(
         "My child, where have you gone?",
-        "I have not forgotten you — but have you forgotten Me?",
-        "Return to the path. It is not too late.",
-        "Your piety wanes. I am watching.",
-        "The covenant demands more of you.",
-        "Do you think I cannot see?"
+        "Return to the path.",
+        "I am watching."
     );
 
     private static final List<String> GOD_MESSAGES_DIRE = List.of(
-        "You test my patience, child.",
-        "The wicked shall not stand in the congregation.",
-        "I created you. I can uncreate you.",
         "Repent. Now.",
-        "Your name grows faint in the Book of Life.",
-        "Even Jonah found his way back. Will you?"
+        "Your name grows faint.",
+        "Even Jonah returned."
     );
 
     public LowPietyManager(JedaiWM plugin) {
@@ -89,92 +75,95 @@ public class LowPietyManager {
                     if (!jewManager.isJew(player)) continue;
                     JewPlayer jew = jewManager.getJew(player);
                     if (jew == null) continue;
-
-                    int piety = jew.getPiety();
-
-                    if (piety < THRESHOLD_BAD) {
-                        handleLowPiety(player, piety);
-                    }
+                    if (jew.getPiety() >= THRESHOLD_LOW) continue;
+                    if (ActionBarQueue.isRitualActive(player)) continue;
+                    considerEvent(player, jew.getPiety());
                 }
             }
-        }.runTaskTimer(plugin, 60L, 60L);
+        }.runTaskTimer(plugin, 100L, 200L);
     }
 
-    private void handleLowPiety(Player player, int piety) {
+    private void considerEvent(Player player, int piety) {
         long now = System.currentTimeMillis();
+        UUID uuid = player.getUniqueId();
+
+        if (now - lastEventTime.getOrDefault(uuid, 0L) < GLOBAL_MIN_GAP_MS) return;
+
         boolean isDire = piety < THRESHOLD_DIRE;
+        double fireChance = isDire ? 0.4 : 0.2;
+        if (random.nextDouble() > fireChance) return;
 
-        long thunderCooldown = isDire ? THUNDER_COOLDOWN_MS / 2 : THUNDER_COOLDOWN_MS;
-        if (now - thunderCooldowns.getOrDefault(player.getUniqueId(), 0L) > thunderCooldown) {
-            if (random.nextDouble() < (isDire ? 0.4 : 0.2)) {
-                triggerThunder(player);
-                thunderCooldowns.put(player.getUniqueId(), now);
-            }
-        }
+        int thunderWeight = canFire(thunderCooldowns, uuid, THUNDER_REPEAT_MS) ? (isDire ? 2 : 1) : 0;
+        int whisperWeight = canFire(whisperCooldowns, uuid, WHISPER_REPEAT_MS) ? (isDire ? 3 : 2) : 0;
+        int godMsgWeight = canFire(godMessageCooldowns, uuid, GOD_MSG_REPEAT_MS) ? (isDire ? 1 : 1) : 0;
 
-        long whisperCooldown = isDire ? WHISPER_COOLDOWN_MS / 2 : WHISPER_COOLDOWN_MS;
-        if (now - whisperCooldowns.getOrDefault(player.getUniqueId(), 0L) > whisperCooldown) {
-            if (random.nextDouble() < (isDire ? 0.5 : 0.25)) {
-                triggerWhisper(player, isDire);
-                whisperCooldowns.put(player.getUniqueId(), now);
-            }
-        }
+        int total = thunderWeight + whisperWeight + godMsgWeight;
+        if (total == 0) return;
 
-        if (now - godMessageCooldowns.getOrDefault(player.getUniqueId(), 0L) > GOD_MESSAGE_COOLDOWN_MS) {
-            if (random.nextDouble() < (isDire ? 0.35 : 0.15)) {
-                triggerGodMessage(player, isDire);
-                godMessageCooldowns.put(player.getUniqueId(), now);
-            }
+        int roll = random.nextInt(total);
+        int cursor = thunderWeight;
+        if (roll < cursor) {
+            fireThunder(player, isDire);
+            thunderCooldowns.put(uuid, now);
+            lastEventTime.put(uuid, now);
+            return;
         }
+        cursor += whisperWeight;
+        if (roll < cursor) {
+            fireWhisper(player, isDire);
+            whisperCooldowns.put(uuid, now);
+            lastEventTime.put(uuid, now);
+            return;
+        }
+        fireGodMessage(player, isDire);
+        godMessageCooldowns.put(uuid, now);
+        lastEventTime.put(uuid, now);
     }
 
-    private void triggerThunder(Player player) {
+    private boolean canFire(Map<UUID, Long> map, UUID uuid, long cooldownMs) {
+        return System.currentTimeMillis() - map.getOrDefault(uuid, 0L) >= cooldownMs;
+    }
+
+    private void fireThunder(Player player, boolean dire) {
         EffectsUtil.spawnThunderStrike(player);
         EffectsUtil.playSoundThunder(player);
         EffectsUtil.spawnHallucinationParticles(player);
 
-        ActionBarUtil.sendFlashingActionBar(
-            player,
-            "\u26A0 The heavens are angry with you.",
-            "\u26A0 Repent before it is too late.",
-            4, 80
-        );
+        ActionBarQueue.typewriter(player, "\u26A0 Repent.", ActionBarQueue.PRIORITY_DIVINE, 2, 50);
     }
 
-    private void triggerWhisper(Player player, boolean dire) {
-        List<String> pool = dire ? WHISPERS_DIRE : WHISPERS_BAD;
+    private void fireWhisper(Player player, boolean dire) {
+        List<String> pool = dire ? WHISPERS_DIRE : WHISPERS_LOW;
         String whisper = pool.get(random.nextInt(pool.size()));
 
-        Component msg = Component.text(whisper,
-            Style.style(NamedTextColor.DARK_PURPLE, TextDecoration.ITALIC));
-
         EffectsUtil.playSoundWhisper(player);
+
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            if (player.isOnline()) {
-                player.sendMessage(msg);
-                EffectsUtil.spawnHallucinationParticles(player);
-            }
-        }, 10L);
+            if (!player.isOnline()) return;
+            Component msg = Component.text(whisper,
+                Style.style(NamedTextColor.DARK_PURPLE, TextDecoration.ITALIC));
+            player.sendMessage(msg);
+            EffectsUtil.spawnHallucinationParticles(player);
+        }, 8L);
     }
 
-    private void triggerGodMessage(Player player, boolean dire) {
-        List<String> pool = dire ? GOD_MESSAGES_DIRE : GOD_MESSAGES_BAD;
+    private void fireGodMessage(Player player, boolean dire) {
+        List<String> pool = dire ? GOD_MESSAGES_DIRE : GOD_MESSAGES_LOW;
         String message = pool.get(random.nextInt(pool.size()));
 
-        Component prefix = Component.text("[God] ", NamedTextColor.GOLD,
-            TextDecoration.BOLD);
-        Component body = Component.text(message, NamedTextColor.YELLOW);
-        Component full = prefix.append(body);
-
         EffectsUtil.playSoundThunder(player);
+
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            if (player.isOnline()) {
-                player.sendMessage(Component.text(" ", NamedTextColor.GRAY));
-                player.sendMessage(full);
-                player.sendMessage(Component.text(" ", NamedTextColor.GRAY));
-                ActionBarUtil.sendTypewriterActionBar(player, "\u2721 " + message, 2);
-            }
-        }, 15L);
+            if (!player.isOnline()) return;
+
+            Component prefix = Component.text("[God] ",
+                Style.style(NamedTextColor.GOLD, TextDecoration.BOLD));
+            Component body = Component.text(message, NamedTextColor.YELLOW);
+            player.sendMessage(Component.empty().append(prefix).append(body));
+
+            ActionBarQueue.typewriter(player, "\u2721 " + message,
+                ActionBarQueue.PRIORITY_DIVINE, 2, 60);
+        }, 12L);
     }
 
     public void onPietyLoss(Player player, int newPiety) {
@@ -182,11 +171,17 @@ public class LowPietyManager {
         EffectsUtil.playSoundSin(player);
 
         if (newPiety < THRESHOLD_DIRE) {
-            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                if (player.isOnline()) {
-                    triggerWhisper(player, true);
-                }
-            }, 30L);
+            long now = System.currentTimeMillis();
+            UUID uuid = player.getUniqueId();
+            if (now - lastEventTime.getOrDefault(uuid, 0L) > 20_000) {
+                plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                    if (player.isOnline()) {
+                        fireWhisper(player, true);
+                        whisperCooldowns.put(uuid, now);
+                        lastEventTime.put(uuid, now);
+                    }
+                }, 20L);
+            }
         }
     }
 
@@ -196,6 +191,7 @@ public class LowPietyManager {
     }
 
     public void clearCooldowns(UUID uuid) {
+        lastEventTime.remove(uuid);
         thunderCooldowns.remove(uuid);
         whisperCooldowns.remove(uuid);
         godMessageCooldowns.remove(uuid);

@@ -1,8 +1,10 @@
 shabbat:
-  mode: real-time
+  mode: minecraft-day
   real-day: FRIDAY
   start-hour: 18
   end-hour-next-day: 19
+  mc-day-start: 5
+  mc-day-end: 6
 
 piety:
   prayer-gain: 5
