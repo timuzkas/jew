@@ -22,12 +22,14 @@ import org.bukkit.potion.PotionEffectType;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 public class JewAbilityCommand implements CommandExecutor, TabCompleter {
 
     private final JedaiWM plugin;
     private final JewManager jewManager;
+    private final Random random = new Random();
 
     private static final long MINUTE = 60 * 1000;
 
@@ -211,6 +213,8 @@ public class JewAbilityCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
+        if (!checkRange(player, target, 5)) return;
+
         JewPlayer targetJew = jewManager.getJew(target);
         targetJew.addPiety(10);
         targetJew.updateLevel();
@@ -262,6 +266,8 @@ public class JewAbilityCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
+        if (!checkRange(player, target, 5)) return;
+
         jew.removePiety(20);
         jew.setCharismaCooldown(System.currentTimeMillis());
         jew.save(new File(plugin.getDataFolder(), "jews"));
@@ -287,11 +293,20 @@ public class JewAbilityCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
+        if (!checkRange(player, target, 5)) return;
+
         jew.removePiety(5);
         jew.setSmellCooldown(System.currentTimeMillis());
         jew.save(new File(plugin.getDataFolder(), "jews"));
 
         ActionBarQueue.send(player, "\uD83D\uDC41 Sniffing...", ActionBarQueue.PRIORITY_INFO, 20);
+        
+        String[] smellMessages = {
+            "\uD83D\uDC41 Someone is staring at your inventory...",
+            "\uD83D\uDC40 A Jewish nose twitches nearby...",
+            "\uD83D\uDC41 You feel a piercing gaze upon your possessions..."
+        };
+        ActionBarQueue.send(target, smellMessages[random.nextInt(smellMessages.length)], ActionBarQueue.PRIORITY_INFO, 30);
 
         int score = calculateWealthScore(target);
         String message = getSmellMessage(score, target.getName());
@@ -357,9 +372,18 @@ public class JewAbilityCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
+        if (!checkRange(player, target, 5)) return;
+
         jew.removePiety(8);
         jew.setLickCooldown(System.currentTimeMillis());
         jew.save(new File(plugin.getDataFolder(), "jews"));
+
+        String[] lickMessages = {
+            "\uD83D\uDC44 Someone just licked near you... weird...",
+            "\uD83D\uDC43 A wet tongue just brushed past you...",
+            "\uD83D\uDC41 You feel an uncomfortable moisture nearby..."
+        };
+        ActionBarQueue.send(target, lickMessages[random.nextInt(lickMessages.length)], ActionBarQueue.PRIORITY_INFO, 30);
 
         org.bukkit.inventory.ItemStack item = target.getInventory().getItemInMainHand();
         if (item == null || item.getType() == Material.AIR) {
@@ -423,8 +447,18 @@ public class JewAbilityCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
+    private boolean checkRange(Player player, Player target, int blocks) {
+        if (target == null) return false;
+        double dist = player.getLocation().distance(target.getLocation());
+        if (dist > blocks) {
+            ActionBarQueue.send(player, "\u26A0 Target must be within " + blocks + " blocks.", ActionBarQueue.PRIORITY_INFO, 30);
+            return false;
+        }
+        return true;
+    }
+
     private Player getTargetPlayer(Player player) {
-        double range = 20;
+        double range = 5;
         Player target = null;
         double closest = range;
 
