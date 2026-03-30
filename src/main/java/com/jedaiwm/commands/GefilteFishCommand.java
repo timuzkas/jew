@@ -2,6 +2,7 @@ package com.jedaiwm.commands;
 
 import com.jedaiwm.JedaiWM;
 import com.jedaiwm.managers.JewManager;
+import com.jedaiwm.utils.ActionBarUtil;
 import com.jedaiwm.utils.TextUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -31,20 +32,25 @@ public class GefilteFishCommand implements CommandExecutor {
             return true;
         }
 
+        if (!player.hasPermission("jedaiwm.admin")) {
+            ActionBarUtil.sendActionBar(player, "\u26A0 No permission.");
+            return true;
+        }
+
         if (!plugin.getConfig().getBoolean("gefilte-fish.enabled", true)) {
-            player.sendMessage(TextUtil.errorMessage("Gefilte Fish is not enabled."));
+            ActionBarUtil.sendActionBar(player, "\u26A0 Gefilte Fish is not enabled.");
             return true;
         }
 
         ItemStack gefilteFish = createGefilteFish();
         player.getInventory().addItem(gefilteFish);
-        player.sendMessage(TextUtil.successMessage("You received Gefilte Fish! Use it to eat."));
+        ActionBarUtil.sendActionBar(player, "\uD83D\uDC1F Gefilte Fish given.");
 
         return true;
     }
 
     public static ItemStack createGefilteFish() {
-        ItemStack fish = new ItemStack(Material.COD, 1);
+        ItemStack fish = new ItemStack(Material.COOKED_COD, 1);
         ItemMeta meta = fish.getItemMeta();
         meta.setDisplayName(ChatColor.GOLD + "Gefilte Fish");
         meta.setLore(List.of(ChatColor.GRAY + "A traditional Jewish dish", ChatColor.YELLOW + "+8 Piety when eaten"));
@@ -53,7 +59,7 @@ public class GefilteFishCommand implements CommandExecutor {
     }
 
     public static boolean isGefilteFish(ItemStack item) {
-        if (item == null || item.getType() != Material.COD) return false;
+        if (item == null || item.getType() != Material.COOKED_COD) return false;
         if (!item.hasItemMeta()) return false;
         ItemMeta meta = item.getItemMeta();
         return meta.hasDisplayName() && meta.getDisplayName().contains("Gefilte Fish");

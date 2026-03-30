@@ -11,6 +11,7 @@ import com.jedaiwm.listeners.FoodListener;
 import com.jedaiwm.listeners.GefilteFishListener;
 import com.jedaiwm.listeners.HaggleListener;
 import com.jedaiwm.listeners.JewFeaturesListener;
+import com.jedaiwm.listeners.RecipeListener;
 import com.jedaiwm.listeners.ShabbatListener;
 import com.jedaiwm.listeners.SynagogueListener;
 import com.jedaiwm.managers.JewManager;
@@ -52,6 +53,7 @@ public final class JedaiWM extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new JewFeaturesListener(this), this);
         getServer().getPluginManager().registerEvents(new HaggleListener(this), this);
         getServer().getPluginManager().registerEvents(new GefilteFishListener(this), this);
+        getServer().getPluginManager().registerEvents(new RecipeListener(this), this);
 
         getLogger().info("JedaiWM enabled!");
     }
