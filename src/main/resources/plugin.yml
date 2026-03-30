@@ -1,0 +1,34 @@
+name: JedaiWM
+version: 1.0.0
+main: com.jedaiwm.JedaiWM
+api-version: 1.21
+author: JedaiWM
+description: A roleplay/lore plugin for Jewish-themed gameplay
+commands:
+  jew:
+    description: Main Jew command
+    usage: /<command> [make|remove|status|list] [player]
+    permission: jedaiwm.jew
+  pray:
+    description: Pray to gain piety
+    usage: /<command>
+    permission: jedaiwm.jew
+  torah:
+    description: Study Torah
+    usage: /<command>
+    permission: jedaiwm.jew
+  teshuvah:
+    description: Repent and restore piety
+    usage: /<command>
+    permission: jedaiwm.jew
+  gefiltefish:
+    description: Get or eat Gefilte Fish
+    usage: /<command>
+    permission: jedaiwm.jew
+permissions:
+  jedaiwm.admin:
+    description: Admin permission
+    default: op
+  jedaiwm.jew:
+    description: Base Jew permission
+    default: false

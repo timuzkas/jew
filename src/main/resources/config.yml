@@ -1,0 +1,70 @@
+shabbat:
+  mode: real-time
+  real-day: FRIDAY
+  start-hour: 18
+  end-hour-next-day: 19
+
+piety:
+  prayer-gain: 5
+  torah-gain: 3
+  treif-loss: 10
+  shabbat-violation-loss: 5
+  conversion-gain: 15
+  teshuvah-restore: 25
+
+broadcast-conversions: true
+
+economy:
+  tax-enabled: false
+  tax-rate: 0.10
+
+synagogue-block:
+  enabled: true
+  material: GOLD_BLOCK
+  display-name: "Synagogue"
+  proximity-bonus: true
+
+restrictions:
+  forbidden-foods:
+    - PORKCHOP
+    - COOKED_PORKCHOP
+    - RABBIT_STEW
+  milk-meat-check: true
+
+levels:
+  1:
+    name: "Ger (Newcomer)"
+    piety-required: 0
+  2:
+    name: "Am Ha'aretz"
+    piety-required: 20
+  3:
+    name: "Ben Torah"
+    piety-required: 45
+  4:
+    name: "Talmid Chacham"
+    piety-required: 70
+  5:
+    name: "Rebbe"
+    piety-required: 90
+
+bar-mitzvah:
+  enabled: true
+  piety-threshold: 45
+  reward-piety: 20
+  max-piety-increase: 10
+
+gold-magnet:
+  enabled: true
+  base-radius: 5.0
+  level-bonus: 0.5
+
+jew-sense:
+  enabled: true
+  range: 8
+  cooldown-seconds: 180
+
+gefilte-fish:
+  enabled: true
+  piety-gain: 8
+  nausea-seconds: 5
