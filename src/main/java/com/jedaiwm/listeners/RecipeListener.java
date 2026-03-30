@@ -22,6 +22,8 @@ public class RecipeListener implements Listener {
 
     private void registerRecipes() {
         NamespacedKey key = new NamespacedKey(plugin, "gefilte_fish");
+        if (plugin.getServer().getRecipe(key) != null) return;
+
         ShapedRecipe recipe = new ShapedRecipe(key, GefilteFishCommand.createGefilteFish());
         recipe.shape("pep", "cfc", "pep");
         recipe.setIngredient('p', Material.PAPER);
