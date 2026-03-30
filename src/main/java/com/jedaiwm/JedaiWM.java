@@ -8,6 +8,7 @@ import com.jedaiwm.commands.TorahCommand;
 import com.jedaiwm.commands.TeshuvahCommand;
 import com.jedaiwm.commands.GefilteFishCommand;
 import com.jedaiwm.commands.DebateCommand;
+import com.jedaiwm.commands.JewAbilityCommand;
 import com.jedaiwm.listeners.FoodListener;
 import com.jedaiwm.listeners.GefilteFishListener;
 import com.jedaiwm.listeners.HaggleListener;
@@ -49,6 +50,10 @@ public final class JedaiWM extends JavaPlugin {
         getCommand("gefiltefish").setTabCompleter(new TabCompleters.GefilteFishCompleter());
 
         getCommand("debate").setExecutor(new DebateCommand(this));
+
+        JewAbilityCommand abilityCmd = new JewAbilityCommand(this);
+        getCommand("jewability").setExecutor(abilityCmd);
+        getCommand("jewability").setTabCompleter(abilityCmd);
 
         getServer().getPluginManager().registerEvents(new FoodListener(this), this);
         getServer().getPluginManager().registerEvents(new ShabbatListener(this), this);

@@ -19,6 +19,16 @@ public class JewPlayer {
     private boolean barMitzvah;
     private boolean batMitzvah;
     private boolean nearSynagogue;
+    private long cleanseCooldown;
+    private long shieldCooldown;
+    private long blessCooldown;
+    private long wrathCooldown;
+    private long charismaCooldown;
+    private long smellCooldown;
+    private long lickCooldown;
+    private boolean shieldActive;
+    private boolean blessedInventory;
+    private long blessedInventoryExpire;
 
     public JewPlayer(UUID uuid, String name) {
         this.uuid = uuid;
@@ -33,6 +43,16 @@ public class JewPlayer {
         this.barMitzvah = false;
         this.batMitzvah = false;
         this.nearSynagogue = false;
+        this.cleanseCooldown = 0;
+        this.shieldCooldown = 0;
+        this.blessCooldown = 0;
+        this.wrathCooldown = 0;
+        this.charismaCooldown = 0;
+        this.smellCooldown = 0;
+        this.lickCooldown = 0;
+        this.shieldActive = false;
+        this.blessedInventory = false;
+        this.blessedInventoryExpire = 0;
     }
 
     public JewPlayer(UUID uuid, String name, int level, int piety, int maxPietyCap, String convertedBy, long joinedAt, boolean barMitzvah, boolean batMitzvah, boolean nearSynagogue) {
@@ -48,6 +68,16 @@ public class JewPlayer {
         this.barMitzvah = barMitzvah;
         this.batMitzvah = batMitzvah;
         this.nearSynagogue = nearSynagogue;
+        this.cleanseCooldown = 0;
+        this.shieldCooldown = 0;
+        this.blessCooldown = 0;
+        this.wrathCooldown = 0;
+        this.charismaCooldown = 0;
+        this.smellCooldown = 0;
+        this.lickCooldown = 0;
+        this.shieldActive = false;
+        this.blessedInventory = false;
+        this.blessedInventoryExpire = 0;
     }
 
     public boolean isNearSynagogue() {
@@ -57,6 +87,26 @@ public class JewPlayer {
     public void setNearSynagogue(boolean nearSynagogue) {
         this.nearSynagogue = nearSynagogue;
     }
+
+    public long getCleanseCooldown() { return cleanseCooldown; }
+    public void setCleanseCooldown(long c) { this.cleanseCooldown = c; }
+    public long getShieldCooldown() { return shieldCooldown; }
+    public void setShieldCooldown(long c) { this.shieldCooldown = c; }
+    public long getBlessCooldown() { return blessCooldown; }
+    public void setBlessCooldown(long c) { this.blessCooldown = c; }
+    public long getWrathCooldown() { return wrathCooldown; }
+    public void setWrathCooldown(long c) { this.wrathCooldown = c; }
+    public long getCharismaCooldown() { return charismaCooldown; }
+    public void setCharismaCooldown(long c) { this.charismaCooldown = c; }
+    public long getSmellCooldown() { return smellCooldown; }
+    public void setSmellCooldown(long c) { this.smellCooldown = c; }
+    public long getLickCooldown() { return lickCooldown; }
+    public void setLickCooldown(long c) { this.lickCooldown = c; }
+    public boolean isShieldActive() { return shieldActive; }
+    public void setShieldActive(boolean s) { this.shieldActive = s; }
+    public boolean isBlessedInventory() { return blessedInventory && System.currentTimeMillis() < blessedInventoryExpire; }
+    public void setBlessedInventory(boolean b, long expire) { this.blessedInventory = b; this.blessedInventoryExpire = expire; }
+    public void clearBlessedInventory() { this.blessedInventory = false; }
 
     public UUID getUuid() {
         return uuid;
@@ -187,6 +237,15 @@ public class JewPlayer {
         config.set("barMitzvah", barMitzvah);
         config.set("batMitzvah", batMitzvah);
         config.set("nearSynagogue", nearSynagogue);
+        config.set("cleanseCooldown", cleanseCooldown);
+        config.set("shieldCooldown", shieldCooldown);
+        config.set("blessCooldown", blessCooldown);
+        config.set("wrathCooldown", wrathCooldown);
+        config.set("charismaCooldown", charismaCooldown);
+        config.set("smellCooldown", smellCooldown);
+        config.set("lickCooldown", lickCooldown);
+        config.set("blessedInventory", blessedInventory);
+        config.set("blessedInventoryExpire", blessedInventoryExpire);
         try {
             config.save(file);
         } catch (IOException e) {
@@ -211,6 +270,14 @@ public class JewPlayer {
         JewPlayer player = new JewPlayer(uuid, name, level, piety, maxPietyCap, convertedBy, joinedAt, barMitzvah, batMitzvah, false);
         player.setLastPrayerTime(config.getLong("lastPrayerTime", 0));
         player.setLastTorahTime(config.getLong("lastTorahTime", 0));
+        player.setCleanseCooldown(config.getLong("cleanseCooldown", 0));
+        player.setShieldCooldown(config.getLong("shieldCooldown", 0));
+        player.setBlessCooldown(config.getLong("blessCooldown", 0));
+        player.setWrathCooldown(config.getLong("wrathCooldown", 0));
+        player.setCharismaCooldown(config.getLong("charismaCooldown", 0));
+        player.setSmellCooldown(config.getLong("smellCooldown", 0));
+        player.setLickCooldown(config.getLong("lickCooldown", 0));
+        player.setBlessedInventory(config.getBoolean("blessedInventory", false), config.getLong("blessedInventoryExpire", 0));
         return player;
     }
 }

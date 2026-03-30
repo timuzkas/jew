@@ -60,11 +60,20 @@ public class FoodListener implements Listener {
                              || (isMeat(type) && hasDairyInInventory(player));
             if (violation) {
                 event.setCancelled(true);
+                int pietyLoss = plugin.getConfig().getInt("piety.treif-loss", 10);
+                jew.removePiety(pietyLoss);
+                jew.updateLevel();
+                jew.save(new File(plugin.getDataFolder(), "jews"));
+
                 EffectsUtil.playSoundSin(player);
                 EffectsUtil.spawnPietyLossParticles(player);
                 ActionBarQueue.typewriter(player,
-                    "\u26A0 Meat and dairy. Kosher law broken.",
+                    "\u26A0 Meat and dairy. -" + pietyLoss + " Piety.",
                     ActionBarQueue.PRIORITY_SIN, 2, 50);
+
+                if (jew.getPiety() < 8) {
+                    plugin.getLowPietyManager().onPietyLoss(player, jew.getPiety());
+                }
             }
         }
     }

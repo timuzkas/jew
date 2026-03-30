@@ -66,6 +66,9 @@ public class PrayCommand implements CommandExecutor {
             if (!player.isOnline()) return;
 
             int pietyGain = plugin.getConfig().getInt("piety.prayer-gain", 5);
+            if (jew.isNearSynagogue()) {
+                pietyGain = (int) (pietyGain * 1.25);
+            }
             jew.addPiety(pietyGain);
 
             EffectsUtil.playSoundPrayerComplete(player);

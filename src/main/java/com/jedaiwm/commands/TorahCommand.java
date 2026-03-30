@@ -75,6 +75,9 @@ public class TorahCommand implements CommandExecutor {
         jew.setLastTorahTime(now);
 
         int pietyGain = plugin.getConfig().getInt("piety.torah-gain", 3);
+        if (jew.isNearSynagogue()) {
+            pietyGain = (int) (pietyGain * 1.25);
+        }
         jew.addPiety(pietyGain);
         jew.updateLevel();
         jew.save(new File(plugin.getDataFolder(), "jews"));

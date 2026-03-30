@@ -29,6 +29,10 @@ commands:
     description: Debate another Jew
     usage: /<command> <player> | agree | disagree
     permission: jedaiwm.jew
+  jewability:
+    description: Use Jewish abilities
+    usage: /<command> <ability> [player]
+    permission: jedaiwm.jew
 permissions:
   jedaiwm.admin:
     description: Admin permission

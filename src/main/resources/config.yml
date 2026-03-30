@@ -83,6 +83,40 @@ debate:
   enabled: true
   piety-reward: 5
 
+abilities:
+  cleanse:
+    level: 2
+    cost: 15
+    cooldown-minutes: 15
+  shield:
+    level: 3
+    cost: 30
+    cooldown-minutes: 20
+  bless-self:
+    level: 2
+    cost: 25
+    cooldown-minutes: 30
+  bless-target:
+    level: 4
+    cost: 40
+    cooldown-minutes: 25
+  wrath:
+    level: 4
+    cost: 55
+    cooldown-minutes: 30
+  charisma:
+    level: 2
+    cost: 20
+    cooldown-minutes: 15
+  smell:
+    level: 1
+    cost: 5
+    cooldown-minutes: 3
+  lick:
+    level: 2
+    cost: 8
+    cooldown-minutes: 5
+
 phrases:
   trade:
     - "A deal is a deal. Mostly."

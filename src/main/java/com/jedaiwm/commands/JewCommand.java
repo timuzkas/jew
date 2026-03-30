@@ -8,6 +8,7 @@ import com.jedaiwm.utils.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -200,11 +201,137 @@ public class JewCommand implements CommandExecutor {
                 return true;
             }
 
+            case "manage" -> {
+                if (!player.hasPermission("jedaiwm.admin")) {
+                    player.sendMessage(TextUtil.errorMessage("You don't have permission to use this command."));
+                    return true;
+                }
+                if (args.length < 3) {
+                    player.sendMessage(Component.text("=== /jew manage ===", NamedTextColor.GOLD));
+                    player.sendMessage(TextUtil.infoMessage("/jew manage <player> piety <add|set|get> <amount>"));
+                    player.sendMessage(TextUtil.infoMessage("/jew manage <player> level <set|get> <amount>"));
+                    player.sendMessage(TextUtil.infoMessage("/jew manage <player> unjew"));
+                    player.sendMessage(TextUtil.infoMessage("/jew manage <player> strike"));
+                    player.sendMessage(TextUtil.infoMessage("/jew manage <player> info"));
+                    return true;
+                }
+                String targetName = args[1];
+                Player target = Bukkit.getPlayer(targetName);
+                OfflinePlayer offlineTarget = Bukkit.getOfflinePlayerIfCached(targetName);
+                if (offlineTarget == null) {
+                    player.sendMessage(TextUtil.errorMessage("Player not found."));
+                    return true;
+                }
+                String action = args[2].toLowerCase();
+                switch (action) {
+                    case "piety" -> {
+                        if (args.length < 5) {
+                            player.sendMessage(TextUtil.errorMessage("Usage: /jew manage <player> piety <add|set|get> <amount>"));
+                            return true;
+                        }
+                        String pietyAction = args[3].toLowerCase();
+                        if (!jewManager.isJew(offlineTarget.getUniqueId())) {
+                            player.sendMessage(TextUtil.errorMessage("Target is not a Jew."));
+                            return true;
+                        }
+                        JewPlayer targetJew = jewManager.getJew(offlineTarget.getUniqueId());
+                        switch (pietyAction) {
+                            case "get" -> player.sendMessage(TextUtil.infoMessage(target.getName() + " has " + targetJew.getPiety() + " piety."));
+                            case "set" -> {
+                                int amount = parseInt(args[4], player);
+                                if (amount == Integer.MIN_VALUE) return true;
+                                targetJew.setPiety(amount);
+                                targetJew.save(new java.io.File(plugin.getDataFolder(), "jews"));
+                                player.sendMessage(TextUtil.successMessage("Set " + target.getName() + "'s piety to " + amount + "."));
+                            }
+                            case "add" -> {
+                                int amount = parseInt(args[4], player);
+                                if (amount == Integer.MIN_VALUE) return true;
+                                targetJew.addPiety(amount);
+                                targetJew.save(new java.io.File(plugin.getDataFolder(), "jews"));
+                                player.sendMessage(TextUtil.successMessage("Added " + amount + " piety to " + target.getName() + "."));
+                            }
+                            default -> player.sendMessage(TextUtil.errorMessage("Unknown piety action. Use: get, set, add"));
+                        }
+                    }
+                    case "level" -> {
+                        if (args.length < 5) {
+                            player.sendMessage(TextUtil.errorMessage("Usage: /jew manage <player> level <set|get> <amount>"));
+                            return true;
+                        }
+                        String levelAction = args[3].toLowerCase();
+                        if (!jewManager.isJew(offlineTarget.getUniqueId())) {
+                            player.sendMessage(TextUtil.errorMessage("Target is not a Jew."));
+                            return true;
+                        }
+                        JewPlayer targetJew = jewManager.getJew(offlineTarget.getUniqueId());
+                        switch (levelAction) {
+                            case "get" -> player.sendMessage(TextUtil.infoMessage(target.getName() + " is level " + targetJew.getLevel() + " (" + targetJew.getLevelName() + ")."));
+                            case "set" -> {
+                                int amount = parseInt(args[4], player);
+                                if (amount == Integer.MIN_VALUE) return true;
+                                targetJew.setLevel(amount);
+                                targetJew.save(new java.io.File(plugin.getDataFolder(), "jews"));
+                                player.sendMessage(TextUtil.successMessage("Set " + target.getName() + "'s level to " + amount + "."));
+                            }
+                            default -> player.sendMessage(TextUtil.errorMessage("Unknown level action. Use: get, set"));
+                        }
+                    }
+                    case "unjew" -> {
+                        if (!jewManager.isJew(offlineTarget.getUniqueId())) {
+                            player.sendMessage(TextUtil.errorMessage("Target is not a Jew."));
+                            return true;
+                        }
+                        jewManager.removeJew(offlineTarget.getUniqueId());
+                        player.sendMessage(TextUtil.successMessage("Removed Jewish status from " + offlineTarget.getName() + "."));
+                        if (target != null && target.isOnline()) {
+                            target.sendMessage(TextUtil.errorMessage("You have been unjewed by an admin."));
+                        }
+                    }
+                    case "strike" -> {
+                        if (target == null || !target.isOnline()) {
+                            player.sendMessage(TextUtil.errorMessage("Target must be online to strike."));
+                            return true;
+                        }
+                        com.jedaiwm.utils.EffectsUtil.spawnThunderStrike(target);
+                        com.jedaiwm.utils.EffectsUtil.playSoundThunder(target);
+                        target.damage(10, player);
+                        target.sendMessage(ChatColor.RED + "You have been struck by an admin!");
+                        player.sendMessage(TextUtil.successMessage("Struck " + target.getName() + " with lightning."));
+                    }
+                    case "info" -> {
+                        if (!jewManager.isJew(offlineTarget.getUniqueId())) {
+                            player.sendMessage(TextUtil.errorMessage("Target is not a Jew."));
+                            return true;
+                        }
+                        JewPlayer targetJew = jewManager.getJew(offlineTarget.getUniqueId());
+                        player.sendMessage(Component.text("=== " + offlineTarget.getName() + " ===", NamedTextColor.GOLD));
+                        player.sendMessage(TextUtil.infoMessage("Piety: " + targetJew.getPiety() + " / " + targetJew.getMaxPietyCap()));
+                        player.sendMessage(TextUtil.infoMessage("Level: " + targetJew.getLevel() + " (" + targetJew.getLevelName() + ")"));
+                        player.sendMessage(TextUtil.infoMessage("Shield Active: " + targetJew.isShieldActive()));
+                        player.sendMessage(TextUtil.infoMessage("Blessed Inventory: " + targetJew.isBlessedInventory()));
+                    }
+                    default -> {
+                        player.sendMessage(TextUtil.errorMessage("Unknown action. Use: piety, level, unjew, strike, info"));
+                    }
+                }
+                return true;
+            }
+
             default -> {
                 showStatus(player, player);
             }
         }
         return true;
+    }
+
+    private int parseInt(String s, Player sender) {
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            sender.sendMessage(TextUtil.errorMessage("Invalid number: " + s));
+            return Integer.MIN_VALUE;
+        }
     }
 
     private void showActionBarOnly(Player viewer, Player target) {

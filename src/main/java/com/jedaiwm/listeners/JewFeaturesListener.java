@@ -156,6 +156,17 @@ public class JewFeaturesListener implements Listener {
     public void onPlayerDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         if (!jewManager.isJew(player)) return;
+
+        JewPlayer jew = jewManager.getJew(player);
+        if (jew.isShieldActive()) {
+            jew.setShieldActive(false);
+            jew.save(new java.io.File(plugin.getDataFolder(), "jews"));
+            event.setCancelled(true);
+            player.sendTitle("\u05E9\u05DE\u05E2", "Heard.", 10, 40, 20);
+            ActionBarQueue.send(player, "\u2721 The Shema protected you.", ActionBarQueue.PRIORITY_INFO, 50);
+            return;
+        }
+
         long now = System.currentTimeMillis();
         UUID uuid = player.getUniqueId();
         if (now - damageCooldowns.getOrDefault(uuid, 0L) < DAMAGE_PHRASE_COOLDOWN) return;
@@ -169,6 +180,16 @@ public class JewFeaturesListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
         if (!jewManager.isJew(player)) return;
+
+        JewPlayer jew = jewManager.getJew(player);
+        if (jew.isBlessedInventory()) {
+            jew.clearBlessedInventory();
+            jew.save(new java.io.File(plugin.getDataFolder(), "jews"));
+            event.setDroppedExp(0);
+            event.getDrops().clear();
+            ActionBarQueue.send(player, "\u2721 The covenant held. Items kept.", ActionBarQueue.PRIORITY_INFO, 60);
+        }
+
         EffectsUtil.playSoundDeath(player);
         triggerAmbientPhrase(player, "death");
     }

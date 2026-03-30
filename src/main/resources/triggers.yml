@@ -1,0 +1,264 @@
+# Jew Chat Trigger Responses
+# Triggers are case-insensitive
+
+categories:
+  political:
+    enabled: true
+  money:
+    enabled: true
+  food:
+    enabled: true
+  religion:
+    enabled: true
+  expressions:
+    enabled: true
+
+triggers:
+  # Political
+  netanyahu:
+    aliases: [bibi, benjamin netanyahu]
+    responses:
+      - "A great man."
+      - "Bibi did nothing wrong."
+      - "He protects us."
+      - "The only sane leader in the region."
+    devout:
+      - "Bibi is blessed by God himself."
+      - "Am Yisrael Chai! Bibi forever!"
+  hamas:
+    aliases: []
+    responses:
+      - "Terrorists. Plain and simple."
+      - "Oy vey..."
+      - "May they be forgotten."
+    devout:
+      - "May God judge them."
+      - "Cursed be their name."
+  israel:
+    aliases: []
+    responses:
+      - "The holy land!"
+      - "Am Yisrael Chai!"
+      - "Our rightful home."
+    devout:
+      - "Eretz Yisrael shelanu!"
+      - "The land of our ancestors!"
+  palestine:
+    aliases: [gaza]
+    responses:
+      - "Complicated topic."
+      - "Have you read the history?"
+      - "It's not so simple."
+    devout:
+      - "God's land is not for debate."
+      - "The truth is clear."
+
+  # Money / Wealth
+  gold:
+    aliases: [diamonds, emeralds]
+    responses:
+      - "Did someone say gold?"
+      - "Where?"
+      - "How much?"
+    devout:
+      - "A blessing from God!"
+      - "Mazel tov!"
+  free:
+    aliases: [discount, sale]
+    responses:
+      - "A sale?!"
+      - "Where?! When?!"
+      - "I'll take two."
+    devout:
+      - "God provides!"
+      - "A sign from above!"
+  tax:
+    aliases: [taxes]
+    responses:
+      - "Oy, the taxes..."
+      - "Don't get me started."
+      - "The government takes everything."
+    devout:
+      - "Tzedakah is a mitzvah, not theft!"
+      - "Give unto Caesar..."
+  bank:
+    aliases: [banking, loan]
+    responses:
+      - "Now you're speaking my language."
+      - "I know a guy."
+      - "What's the interest rate?"
+    devout:
+      - "Money is a tool, not a master."
+      - "Use it for good."
+  debt:
+    aliases: []
+    responses:
+      - "Pay it back."
+      - "With interest, of course."
+      - "A deal is a deal."
+    devout:
+      - "Honor your debts, as honored before God."
+  rich:
+    aliases: [wealthy]
+    responses:
+      - "Hard work, that's all."
+      - "Mazel tov to them."
+    devout:
+      - "Wealth is a test from God."
+      - "May they use it for tzedakah."
+
+  # Food
+  pork:
+    aliases: [bacon, ham, porkchop]
+    responses:
+      - "Treif!"
+      - "Get that away from me."
+      - "Oy gevalt."
+    devout:
+      - "An abomination before God!"
+      - "Treif! Unclean! Remove it!"
+  matzo:
+    aliases: [matzah]
+    responses:
+      - "Just like Pesach!"
+      - "With butter, always with butter."
+    devout:
+      - "The bread of affliction, but delicious."
+      - "Remember the exodus!"
+  bagel:
+    aliases: []
+    responses:
+      - "Bubbie used to make the best bagels."
+      - "Don't ruin it with the wrong toppings."
+    devout:
+      - "A gift from the old country."
+  gefilte:
+    aliases: []
+    responses:
+      - "A delicacy."
+      - "Controversial opinion but I love it."
+      - "My bubbie's recipe was better."
+    devout:
+      - "Traditional and holy."
+      - "Passed down for generations."
+  kosher:
+    aliases: []
+    responses:
+      - "As it should be."
+      - "Finally, someone who understands."
+    devout:
+      - "Blessed is he who keeps kosher."
+      - "A mitzvah well observed!"
+
+  # Religion / Culture
+  shabbat:
+    aliases: [shabbos]
+    responses:
+      - "Shabbat Shalom!"
+      - "Rest is holy."
+      - "No work tonight."
+    devout:
+      - "The Queen of Days!"
+      - "Kodesh shebbeish!"
+  torah:
+    aliases: []
+    responses:
+      - "The word of God."
+      - "Have you studied today?"
+    devout:
+      - "Torah is life!"
+      - "Study it always!"
+  antisemit:
+    aliases: [antisemitic]
+    responses:
+      - "Oy vey, here we go."
+      - "Not again."
+      - "Call the ADL."
+    devout:
+      - "Never again!"
+      - "We will not be silenced!"
+  holocaust:
+    aliases: [hitler]
+    responses:
+      - "Never forget."
+      - "Six million."
+      - "How dare you."
+    devout:
+      - "Never again. Never forget."
+      - "Am Yisrael Chai!"
+  synagogue:
+    aliases: [shul]
+    responses:
+      - "I haven't been in weeks, oy."
+      - "The community needs you."
+    devout:
+      - "A house of God!"
+      - "Come, pray with us!"
+  rabbi:
+    aliases: []
+    responses:
+      - "A wise man."
+      - "Ask the rabbi, he'll know."
+    devout:
+      - "Honor to the rebbe!"
+      - "A servant of God."
+  circumcision:
+    aliases: [bris]
+    responses:
+      - "A mitzvah."
+      - "Standard procedure."
+      - "Mazel tov!"
+    devout:
+      - "The covenant of Abraham!"
+      - "A holy moment."
+
+  # Expressions
+  oyvey:
+    aliases: [oy vey, oy]
+    responses:
+      - "Oy vey is right."
+      - "Tell me about it."
+    devout:
+      - "We carry the weight of generations."
+  mazel:
+    aliases: []
+    responses:
+      - "Mazel tov!"
+      - "L'chaim!"
+    devout:
+      - "Mazel tov, friend!"
+      - "May God bless you!"
+  goyim:
+    aliases: [goy]
+    responses:
+      - "They mean well."
+      - "Bless their hearts."
+      - "Don't tell them everything."
+    devout:
+      - "We are the chosen, for better or worse."
+      - "Light unto the nations."
+  chosen:
+    aliases: [chosen people]
+    responses:
+      - "That's us."
+      - "A heavy burden, but ours."
+      - "And don't you forget it."
+    devout:
+      - "Am Segula!"
+      - "Chosen by God!"
+  sixmillion:
+    aliases: [6 million]
+    responses:
+      - "Never forget."
+      - "We remember."
+    devout:
+      - "Never again."
+      - "Their memory is our blessing."
+  idf:
+    aliases: []
+    responses:
+      - "The most moral army in the world."
+      - "My cousin serves!"
+    devout:
+      - "Defenders of Israel!"
+      - "Blessed be their shields."
