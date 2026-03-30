@@ -3,14 +3,13 @@ package com.jedaiwm.listeners;
 import com.jedaiwm.JedaiWM;
 import com.jedaiwm.commands.GefilteFishCommand;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
-
-import java.util.Arrays;
 
 public class RecipeListener implements Listener {
 
@@ -22,7 +21,8 @@ public class RecipeListener implements Listener {
     }
 
     private void registerRecipes() {
-        ShapedRecipe recipe = new ShapedRecipe(plugin.getKey("gefilte_fish"), GefilteFishCommand.createGefilteFish());
+        NamespacedKey key = new NamespacedKey(plugin, "gefilte_fish");
+        ShapedRecipe recipe = new ShapedRecipe(key, GefilteFishCommand.createGefilteFish());
         recipe.shape("pep", "cfc", "pep");
         recipe.setIngredient('p', Material.PAPER);
         recipe.setIngredient('e', Material.EGG);
