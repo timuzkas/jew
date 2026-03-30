@@ -38,7 +38,7 @@ public class JewCommand implements CommandExecutor {
         Player player = (Player) sender;
 
         if (args.length == 0) {
-            showStatus(player, player);
+            showActionBarOnly(player, player);
             return true;
         }
 
@@ -205,6 +205,18 @@ public class JewCommand implements CommandExecutor {
             }
         }
         return true;
+    }
+
+    private void showActionBarOnly(Player viewer, Player target) {
+        if (!jewManager.isJew(target.getUniqueId())) {
+            ActionBarUtil.sendActionBar(viewer, "\u26A0 You are not a Jew.");
+            return;
+        }
+
+        JewPlayer jew = jewManager.getJew(target.getUniqueId());
+        String shabbatTime = plugin.getShabbatManager().getShabbatTimeRemaining();
+        String actionBarMsg = ActionBarUtil.formatShabbatStatus(jew.getPiety(), jew.getLevelName(), shabbatTime);
+        ActionBarUtil.sendActionBar(target, actionBarMsg);
     }
 
     private void showStatus(Player viewer, Player target) {
