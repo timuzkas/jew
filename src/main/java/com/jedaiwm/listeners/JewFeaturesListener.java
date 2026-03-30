@@ -9,6 +9,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Firework;
 import org.bukkit.entity.Item;
@@ -16,9 +18,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
@@ -78,7 +79,7 @@ public class JewFeaturesListener implements Listener {
                 
                 if (isGoldItem(type)) {
                     Location itemLoc = item.getLocation();
-                    Vector direction = playerLoc.clone().subtract(itemLoc).normalize();
+                    Vector direction = playerLoc.clone().subtract(itemLoc).toVector().normalize();
                     double speed = 0.15;
                     item.setVelocity(direction.multiply(speed));
                 }
@@ -212,7 +213,7 @@ public class JewFeaturesListener implements Listener {
             Firework fw = player.getWorld().spawn(loc.add(random.nextDouble() * 2 - 1, 0, random.nextDouble() * 2 - 1), Firework.class);
             FireworkMeta meta = fw.getFireworkMeta();
             meta.addEffect(FireworkEffect.builder()
-                .withColor(Color.fromBGR(random.nextInt(255), random.nextInt(255), random.nextInt(255)))
+                .withColor(Color.fromRGB(random.nextInt(255), random.nextInt(255), random.nextInt(255)))
                 .build());
             meta.setPower(1);
             fw.setFireworkMeta(meta);

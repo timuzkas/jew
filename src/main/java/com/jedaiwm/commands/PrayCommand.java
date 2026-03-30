@@ -7,11 +7,15 @@ import com.jedaiwm.utils.ActionBarUtil;
 import com.jedaiwm.utils.TextUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
 
 import java.io.File;
 import java.util.List;
@@ -111,10 +115,10 @@ public class PrayCommand implements CommandExecutor {
     
     private void spawnFireworks(Player player) {
         for (int i = 0; i < 3; i++) {
-            org.bukkit.entity.Firework fw = player.getWorld().spawn(player.getLocation().add(random.nextDouble() * 2 - 1, 0, random.nextDouble() * 2 - 1), org.bukkit.entity.Firework.class);
-            org.bukkit.FireworkMeta meta = fw.getFireworkMeta();
-            meta.addEffect(org.bukkit.FireworkEffect.builder()
-                .withColor(org.bukkit.Color.fromBGR(random.nextInt(255), random.nextInt(255), random.nextInt(255)))
+            Firework fw = player.getWorld().spawn(player.getLocation().add(random.nextDouble() * 2 - 1, 0, random.nextDouble() * 2 - 1), Firework.class);
+            FireworkMeta meta = fw.getFireworkMeta();
+            meta.addEffect(FireworkEffect.builder()
+                .withColor(Color.fromRGB(random.nextInt(255), random.nextInt(255), random.nextInt(255)))
                 .build());
             meta.setPower(1);
             fw.setFireworkMeta(meta);

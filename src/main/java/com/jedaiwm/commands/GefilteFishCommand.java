@@ -81,7 +81,7 @@ public class GefilteFishCommand implements CommandExecutor {
             ActionBarUtil.sendActionBar(player, "\u2721 Piety: " + jew.getPiety());
         } else {
             int nauseaSeconds = plugin.getConfig().getInt("gefilte-fish.nausea-seconds", 5);
-            player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, nauseaSeconds * 20, 1));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, nauseaSeconds * 20, 1));
             ActionBarUtil.sendActionBar(player, "You don't understand this food.");
             player.sendMessage(TextUtil.errorMessage("You don't understand this traditional food..."));
         }
