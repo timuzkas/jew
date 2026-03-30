@@ -68,3 +68,43 @@ gefilte-fish:
   enabled: true
   piety-gain: 8
   nausea-seconds: 5
+
+haggle:
+  chance-base: 0.10
+  chance-level5: 0.25
+
+phrases:
+  trade:
+    - "A deal is a deal. Mostly."
+    - "You drive a hard bargain."
+    - "My family will hear of this."
+    - "Business is business."
+  gold_pickup:
+    - "Shmulik smiles warmly."
+    - "As it should be."
+    - "Another blessing received."
+    - "The family grows."
+  damage:
+    - "Oy vey!"
+    - "What is this, a pogrom?!"
+    - "Not my day..."
+    - "Why always me?"
+  death:
+    - "Oy gevalt!"
+    - "Anti-semitism!"
+    - "I'll be back..."
+    - "They'll pay for this."
+  forbidden_food:
+    - "Forgive me, bubbie..."
+    - "I have strayed..."
+    - "Teshuvah is needed."
+    - "What have I done?!"
+  rain:
+    - "Of course it rains on me."
+    - " Moshe would have brought an umbrella."
+    - "Even the sky discriminates."
+  low_piety:
+    - "I'm not a bad Jew, I'm just... flexible."
+    - "The path back is always open."
+    - "Tradition is complicated."
+    - "Rebbe will understand."

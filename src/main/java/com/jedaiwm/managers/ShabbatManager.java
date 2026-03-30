@@ -69,39 +69,58 @@ public class ShabbatManager {
     }
 
     public String getShabbatTimeRemaining() {
-        if (!isShabbatActive) {
-            LocalDateTime now = LocalDateTime.now();
-            DayOfWeek day = now.getDayOfWeek();
-            String startDayStr = config.getString("shabbat.real-day", "FRIDAY");
-            int startHour = config.getInt("shabbat.start-hour", 18);
+        LocalDateTime now = LocalDateTime.now();
+        DayOfWeek day = now.getDayOfWeek();
+        int startHour = config.getInt("shabbat.start-hour", 18);
+        int endHour = config.getInt("shabbat.end-hour-next-day", 19);
+        
+        DayOfWeek startDay;
+        try {
+            startDay = DayOfWeek.valueOf(config.getString("shabbat.real-day", "FRIDAY").toUpperCase());
+        } catch (IllegalArgumentException e) {
+            startDay = DayOfWeek.FRIDAY;
+        }
+        
+        LocalTime nowTime = now.toLocalTime();
+        LocalTime startTime = LocalTime.of(startHour, 0);
+        
+        if (isShabbatActive) {
+            DayOfWeek endDay = startDay.plus(1);
+            LocalDateTime shabbatEnd;
             
-            DayOfWeek startDay;
-            try {
-                startDay = DayOfWeek.valueOf(startDayStr.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                startDay = DayOfWeek.FRIDAY;
-            }
-            
-            LocalDateTime nextShabbat;
-            if (day == startDay) {
-                nextShabbat = now.with(startDay);
+            if (day == endDay) {
+                shabbatEnd = now.with(endDay).with(startTime);
             } else {
-                nextShabbat = now.with(TemporalAdjusters.next(startDay));
+                shabbatEnd = now.with(TemporalAdjusters.nextOrSame(endDay)).with(startTime);
             }
-            nextShabbat = nextShabbat.with(LocalTime.of(startHour, 0));
             
-            long minutes = java.time.Duration.between(now, nextShabbat).toMinutes();
+            if (now.isAfter(shabbatEnd)) {
+                shabbatEnd = shabbatEnd.plusDays(7);
+            }
+            
+            long minutes = java.time.Duration.between(now, shabbatEnd).toMinutes();
             long hours = minutes / 60;
             minutes = minutes % 60;
             
             return hours + "h" + minutes + "m";
         } else {
-            LocalDateTime now = LocalDateTime.now();
-            int endHour = config.getInt("shabbat.end-hour-next-day", 19);
-            DayOfWeek endDay = DayOfWeek.valueOf(config.getString("shabbat.real-day", "FRIDAY").toUpperCase()).plus(1);
+            LocalDateTime nextShabbat;
             
-            LocalDateTime shabbatEnd = now.with(endDay).with(LocalTime.of(endHour, 0));
-            long minutes = java.time.Duration.between(now, shabbatEnd).toMinutes();
+            if (day == startDay) {
+                if (nowTime.isAfter(startTime)) {
+                    nextShabbat = now.with(TemporalAdjusters.next(startDay)).with(startTime);
+                } else {
+                    nextShabbat = now.with(startTime);
+                }
+            } else {
+                nextShabbat = now.with(TemporalAdjusters.nextOrSame(startDay)).with(startTime);
+            }
+            
+            if (nextShabbat.isBefore(now)) {
+                nextShabbat = nextShabbat.plusDays(7);
+            }
+            
+            long minutes = java.time.Duration.between(now, nextShabbat).toMinutes();
             long hours = minutes / 60;
             minutes = minutes % 60;
             

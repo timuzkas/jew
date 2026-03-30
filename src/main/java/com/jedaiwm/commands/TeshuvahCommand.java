@@ -4,6 +4,7 @@ import com.jedaiwm.JedaiWM;
 import com.jedaiwm.managers.JewManager;
 import com.jedaiwm.models.JewPlayer;
 import com.jedaiwm.utils.ActionBarUtil;
+import com.jedaiwm.utils.EffectsUtil;
 import com.jedaiwm.utils.TextUtil;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -72,9 +73,13 @@ public class TeshuvahCommand implements CommandExecutor {
                 jew.setPiety(restoreAmount);
                 jew.updateLevel();
                 jew.save(new java.io.File(plugin.getDataFolder(), "jews"));
-                
+
+                plugin.getLowPietyManager().clearCooldowns(player.getUniqueId());
+                plugin.getLowPietyManager().onPietyGain(player, jew.getPiety());
+                EffectsUtil.playSoundTeshuvah(player);
+
                 player.sendTitle("\u05EA\u05E9\u05D5\u05D1\u05D4", "Your sins are forgiven.", 10, 70, 20);
-                
+
                 String shabbatTime = plugin.getShabbatManager().getShabbatTimeRemaining();
                 String actionBar = ActionBarUtil.formatShabbatStatus(jew.getPiety(), jew.getLevelName(), shabbatTime);
                 ActionBarUtil.sendActionBar(player, actionBar);

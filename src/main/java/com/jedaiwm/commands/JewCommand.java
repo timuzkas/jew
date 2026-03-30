@@ -8,6 +8,7 @@ import com.jedaiwm.utils.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -165,8 +166,8 @@ public class JewCommand implements CommandExecutor {
             }
 
             case "accept" -> {
-                if (!jewManager.isJew(player)) {
-                    player.sendMessage(TextUtil.errorMessage("You are not a Jew."));
+                if (jewManager.isJew(player)) {
+                    player.sendMessage(TextUtil.errorMessage("You are already a Jew."));
                     return true;
                 }
                 if (args.length < 2) {
@@ -176,6 +177,10 @@ public class JewCommand implements CommandExecutor {
                 Player inviter = Bukkit.getPlayer(args[1]);
                 if (inviter == null) {
                     player.sendMessage(TextUtil.errorMessage("Inviter not found."));
+                    return true;
+                }
+                if (!jewManager.isJew(inviter)) {
+                    player.sendMessage(TextUtil.errorMessage("That player is not a Jew."));
                     return true;
                 }
                 startConversion(player, inviter);
@@ -230,6 +235,9 @@ public class JewCommand implements CommandExecutor {
     }
 
     private void startConversion(Player target, Player inviter) {
+        Location targetStart = target.getLocation().clone();
+        Location inviterStart = inviter.getLocation().clone();
+        
         inviter.sendMessage(TextUtil.infoMessage("Starting conversion ritual... Stand still for 10 seconds!"));
         target.sendMessage(TextUtil.infoMessage("Starting conversion ritual... Stand still for 10 seconds!"));
         
@@ -239,6 +247,18 @@ public class JewCommand implements CommandExecutor {
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             if (!target.isOnline() || !inviter.isOnline()) {
                 inviter.sendMessage(TextUtil.errorMessage("Conversion failed: player disconnected."));
+                return;
+            }
+            
+            if (target.getLocation().distance(targetStart) > 0.5) {
+                inviter.sendMessage(TextUtil.errorMessage("Conversion failed: target moved."));
+                target.sendMessage(TextUtil.errorMessage("You moved! The ritual was cancelled."));
+                return;
+            }
+            
+            if (inviter.getLocation().distance(inviterStart) > 0.5) {
+                inviter.sendMessage(TextUtil.errorMessage("Conversion failed: you moved!"));
+                target.sendMessage(TextUtil.errorMessage("Conversion failed: inviter moved."));
                 return;
             }
             

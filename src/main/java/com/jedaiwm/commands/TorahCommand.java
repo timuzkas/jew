@@ -7,8 +7,6 @@ import com.jedaiwm.utils.ActionBarUtil;
 import com.jedaiwm.utils.TextUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -76,22 +74,8 @@ public class TorahCommand implements CommandExecutor {
         
         int pietyGain = plugin.getConfig().getInt("piety.torah-gain", 3);
         jew.addPiety(pietyGain);
-        
-        if (!jew.hasBarMitzvah() && !jew.hasBatMitzvah() && jew.getPiety() >= plugin.getConfig().getInt("bar-mitzvah.piety-threshold", 45)) {
-            jew.setBarMitzvah(true);
-            jew.setMaxPietyCap(110);
-            jew.addPiety(20);
-            player.sendTitle("\uD83C\uDF89 \u05D1\u05E8 \u05DE\u05E6\u05D5\u05D4", "You are now a son of the commandment.", 10, 70, 20);
-            for (org.bukkit.entity.Player online : Bukkit.getOnlinePlayers()) {
-                if (jewManager.isJew(online) || online.hasPermission("jedaiwm.admin")) {
-                    online.sendMessage(org.bukkit.ChatColor.GOLD + "\u2721 " + player.getName() + " has had their Bar Mitzvah!");
-                }
-            }
-            ActionBarUtil.sendActionBar(player, "You are now accountable for your mitzvot.");
-        }
-        
         jew.updateLevel();
-        jew.save(new java.io.File(plugin.getDataFolder(), "jews"));
+        jew.save(new File(plugin.getDataFolder(), "jews"));
 
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             if (player.isOnline()) {

@@ -6,11 +6,13 @@ import com.jedaiwm.commands.TorahCommand;
 import com.jedaiwm.commands.TeshuvahCommand;
 import com.jedaiwm.commands.GefilteFishCommand;
 import com.jedaiwm.listeners.FoodListener;
+import com.jedaiwm.listeners.GefilteFishListener;
 import com.jedaiwm.listeners.HaggleListener;
 import com.jedaiwm.listeners.JewFeaturesListener;
 import com.jedaiwm.listeners.ShabbatListener;
 import com.jedaiwm.listeners.SynagogueListener;
 import com.jedaiwm.managers.JewManager;
+import com.jedaiwm.managers.LowPietyManager;
 import com.jedaiwm.managers.ShabbatManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -19,15 +21,17 @@ public final class JedaiWM extends JavaPlugin {
     private static JedaiWM instance;
     private JewManager jewManager;
     private ShabbatManager shabbatManager;
+    private LowPietyManager lowPietyManager;
 
     @Override
     public void onEnable() {
         instance = this;
 
         saveDefaultConfig();
-        
+
         jewManager = new JewManager(this);
         shabbatManager = new ShabbatManager(this);
+        lowPietyManager = new LowPietyManager(this);
 
         getCommand("jew").setExecutor(new JewCommand(this));
         getCommand("pray").setExecutor(new PrayCommand(this));
@@ -40,6 +44,7 @@ public final class JedaiWM extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new SynagogueListener(this), this);
         getServer().getPluginManager().registerEvents(new JewFeaturesListener(this), this);
         getServer().getPluginManager().registerEvents(new HaggleListener(this), this);
+        getServer().getPluginManager().registerEvents(new GefilteFishListener(this), this);
 
         getLogger().info("JedaiWM enabled!");
     }
@@ -62,5 +67,9 @@ public final class JedaiWM extends JavaPlugin {
 
     public ShabbatManager getShabbatManager() {
         return shabbatManager;
+    }
+
+    public LowPietyManager getLowPietyManager() {
+        return lowPietyManager;
     }
 }
